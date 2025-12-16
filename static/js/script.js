@@ -170,7 +170,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     // File Upload Validation for Add Tenant Form
-    const addTenantForm = document.getElementById('addTenantForm');
+    addTenantForm = document.getElementById('addTenantForm');
     if (addTenantForm) {
         const profilePhotoInput = document.getElementById('profile_photo');
         const idProofPhotoInput = document.getElementById('id_proof_photo');

@@ -3,16 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}PG Management System{% endblock %}</title>
+    <title>{% block title %}Zolo Stays{% endblock %}</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 </head>
 <body>
     <nav class="navbar">
         <div class="container">
-            <h1 class="logo">PG Management</h1>
+            <h1 class="logo">Zolo Stays</h1>
             <div class="nav-links">
                 {% if session.admin_id %}
-                    <span>Welcome, Admin</span>
+                    <span>Welcome, Mrs. Nair</span>
                     <a href="{{ url_for('admin_dashboard') }}">Dashboard</a>
                     <a href="{{ url_for('admin_logout') }}">Logout</a>
                 {% elif session.tenant_id %}

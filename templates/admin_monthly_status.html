@@ -1,0 +1,116 @@
+{% extends "base.html" %}
+
+{% block title %}Monthly Payment Status - PG Management{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1>Monthly Payment Status</h1>
+    <form method="GET" action="{{ url_for('admin_monthly_payment_status') }}" class="form-inline">
+        <div class="form-group" style="margin-bottom: 0;">
+            <label for="month">Select Month</label>
+            <select id="month" name="month" onchange="this.form.submit()">
+                {% for month in month_options %}
+                <option value="{{ month }}" {% if month == selected_month %}selected{% endif %}>{{ month }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="form-group" style="margin-bottom: 0; margin-left: 1rem;">
+            <label for="year">Select Year</label>
+            <select id="year" name="year" onchange="this.form.submit()">
+                {% for year in year_options %}
+                <option value="{{ year }}" {% if year == selected_year %}selected{% endif %}>{{ year }}</option>
+                {% endfor %}
+            </select>
+        </div>
+    </form>
+</div>
+
+<div class="section-header">
+    <h2>Paid Tenants ({{ selected_month }})</h2>
+</div>
+{% if paid_tenants %}
+<div class="table-container">
+    <table class="data-table">
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Room</th>
+                <th>Amount Paid</th>
+                <th>Payment Date</th>
+                <th>Transaction ID</th>
+                <th>Status</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for entry in paid_tenants %}
+            <tr>
+                <td>{{ entry.tenant.name }}</td>
+                <td>{{ entry.tenant.room_number }}</td>
+                <td>₹{{ "%.2f"|format(entry.payment.amount) }}</td>
+                <td>{{ entry.payment.payment_date.strftime('%B %d, %Y') }}</td>
+                <td>{{ entry.payment.transaction_id }}</td>
+                <td><span class="badge badge-success">{{ entry.status_label }}</span></td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% else %}
+<div class="empty-state">
+    <p>No approved payments found for {{ selected_month }}.</p>
+</div>
+{% endif %}
+
+<div class="section-header" style="margin-top: 2rem;">
+    <h2>Pending / Not Paid Tenants ({{ selected_month }})</h2>
+</div>
+{% if pending_tenants %}
+<div class="table-container">
+    <table class="data-table">
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Room</th>
+                <th>Monthly Rent</th>
+                <th>Status</th>
+                <th>Pending Payment Date</th>
+                <th>Transaction ID</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for entry in pending_tenants %}
+            <tr>
+                <td>{{ entry.tenant.name }}</td>
+                <td>{{ entry.tenant.room_number }}</td>
+                <td>₹{{ "%.2f"|format(entry.tenant.monthly_rent) }}</td>
+                <td>
+                    <span class="badge badge-{{ 'warning' if entry.status_label == 'Pending Approval' else 'danger' }}">
+                        {{ entry.status_label }}
+                    </span>
+                </td>
+                <td>
+                    {% if entry.payment %}
+                        {{ entry.payment.payment_date.strftime('%B %d, %Y') }}
+                    {% else %}
+                        <span class="text-muted">—</span>
+                    {% endif %}
+                </td>
+                <td>
+                    {% if entry.payment %}
+                        {{ entry.payment.transaction_id }}
+                    {% else %}
+                        <span class="text-muted">—</span>
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% else %}
+<div class="empty-state">
+    <p>All tenants are paid for {{ selected_month }}.</p>
+</div>
+{% endif %}
+{% endblock %}
+

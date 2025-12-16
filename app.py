@@ -1,6 +1,6 @@
 from flask import Flask, render_template, request, redirect, url_for, flash, session, jsonify
 from models import db, User, Admin, Payment, Complaint
-from datetime import datetime
+from datetime import datetime, timezone, timedelta
 import os
 import uuid
 from werkzeug.utils import secure_filename
@@ -246,6 +246,89 @@ def view_payments():
     
     payments = query.order_by(Payment.created_at.desc()).all()
     return render_template('admin_payments.html', payments=payments, status_filter=status_filter)
+
+@app.route('/admin/monthly-payment-status', methods=['GET', 'POST'])
+@admin_required
+def admin_monthly_payment_status():
+    # Month options consistent with tenant payment form
+    month_options = [
+        'January', 'February', 'March', 'April', 'May', 'June',
+        'July', 'August', 'September', 'October', 'November', 'December'
+    ]
+    current_year = datetime.utcnow().year
+    year_options = list(range(current_year - 2, current_year + 6))  # e.g., 2023-2030 rolling window
+
+    selected_month = request.args.get('month') or request.form.get('month') or month_options[0]
+    selected_year = int(request.args.get('year') or request.form.get('year') or current_year)
+
+    # Map month name to month number
+    month_to_num = {name: idx for idx, name in enumerate(month_options, start=1)}
+    selected_month_num = month_to_num.get(selected_month, 1)
+
+    # End of selected month for join-date filtering
+    next_month = selected_month_num % 12 + 1
+    next_month_year = selected_year + (1 if selected_month_num == 12 else 0)
+    month_end = datetime(next_month_year, next_month, 1, tzinfo=timezone.utc) - timedelta(seconds=1)
+
+    # Only consider tenants who joined on or before end of selected month
+    tenants = (
+        User.query
+        .filter(User.created_at <= month_end)
+        .order_by(User.name.asc())
+        .all()
+    )
+
+    # Fetch payments for selected month/year
+    payments_for_month = (
+        Payment.query
+        .filter(
+            Payment.month == selected_month,
+            Payment.payment_date.between(
+                datetime(selected_year, selected_month_num, 1).date(),
+                month_end.date()
+            )
+        )
+        .order_by(Payment.created_at.desc())
+        .all()
+    )
+
+    # Track latest approved and pending payments per tenant for the selected period
+    latest_approved = {}
+    latest_pending = {}
+    for payment in payments_for_month:
+        if payment.status == 'approved' and payment.tenant_id not in latest_approved:
+            latest_approved[payment.tenant_id] = payment
+        elif payment.status == 'pending' and payment.tenant_id not in latest_pending:
+            latest_pending[payment.tenant_id] = payment
+
+    paid_tenants = []
+    pending_tenants = []
+
+    for tenant in tenants:
+        if tenant.id in latest_approved:
+            paid_tenants.append({
+                'tenant': tenant,
+                'payment': latest_approved[tenant.id],
+                'status_label': 'Paid'
+            })
+        else:
+            pending_payment = latest_pending.get(tenant.id)
+            status_label = 'Pending Approval' if pending_payment else 'Not Paid'
+            pending_tenants.append({
+                'tenant': tenant,
+                'payment': pending_payment,
+                'status_label': status_label
+            })
+
+    return render_template(
+        'admin_monthly_status.html',
+        month_options=month_options,
+        year_options=year_options,
+        selected_month=selected_month,
+        selected_year=selected_year,
+        paid_tenants=paid_tenants,
+        pending_tenants=pending_tenants
+    )
 
 @app.route('/admin/approve_payment/<int:payment_id>', methods=['POST'])
 @admin_required

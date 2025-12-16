@@ -1,6 +1,6 @@
 from flask_sqlalchemy import SQLAlchemy
 from werkzeug.security import generate_password_hash, check_password_hash
-from datetime import datetime
+from datetime import datetime, timezone
 
 db = SQLAlchemy()
 
@@ -15,11 +15,11 @@ class User(db.Model):
     room_number = db.Column(db.String(10), nullable=False)
     monthly_rent = db.Column(db.Float, nullable=False)
     password_hash = db.Column(db.String(255), nullable=False)
-    profile_photo = db.Column(db.String(255), nullable=True)
-    id_proof_photo = db.Column(db.String(255), nullable=True)
-    deposit_amount = db.Column(db.Float, nullable=True)
-    deposit_paid_date = db.Column(db.Date, nullable=True)
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    profile_photo = db.Column(db.String(255), nullable=False)
+    id_proof_photo = db.Column(db.String(255), nullable=False)
+    deposit_amount = db.Column(db.Float, nullable=False)
+    deposit_paid_date = db.Column(db.Date, nullable=False)
+    created_at = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc))
     
     # Relationship with payments
     payments = db.relationship('Payment', backref='tenant', lazy=True, cascade='all, delete-orphan')
@@ -68,7 +68,7 @@ class Payment(db.Model):
     transaction_id = db.Column(db.String(100), nullable=False)
     payment_proof = db.Column(db.String(255), nullable=True)
     status = db.Column(db.String(20), default='pending', nullable=False)
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    created_at = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc))
     
     def __repr__(self):
         return f'<Payment {self.id} - {self.month}>'
@@ -82,7 +82,7 @@ class Complaint(db.Model):
     subject = db.Column(db.String(200), nullable=False)
     description = db.Column(db.Text, nullable=False)
     status = db.Column(db.String(20), default='pending', nullable=False)
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    created_at = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc))
     resolved_at = db.Column(db.DateTime, nullable=True)
     
     def __repr__(self):
