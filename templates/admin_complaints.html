@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+
+{% block title %}Complaints Management - PG Management{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1>Complaints Management</h1>
+    <div class="filter-buttons">
+        <a href="{{ url_for('admin_complaints', status='all') }}" class="btn btn-sm {{ 'btn-primary' if status_filter == 'all' else 'btn-secondary' }}">All</a>
+        <a href="{{ url_for('admin_complaints', status='pending') }}" class="btn btn-sm {{ 'btn-warning' if status_filter == 'pending' else 'btn-secondary' }}">Pending</a>
+        <a href="{{ url_for('admin_complaints', status='resolved') }}" class="btn btn-sm {{ 'btn-success' if status_filter == 'resolved' else 'btn-secondary' }}">Resolved</a>
+    </div>
+</div>
+
+{% if complaints %}
+<div class="table-container">
+    <table class="data-table">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Tenant</th>
+                <th>Room Number</th>
+                <th>Subject</th>
+                <th>Description</th>
+                <th>Date Raised</th>
+                <th>Status</th>
+                <th>Resolved On</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for complaint in complaints %}
+            <tr>
+                <td>{{ complaint.id }}</td>
+                <td>{{ complaint.tenant.name }}</td>
+                <td>{{ complaint.tenant.room_number }}</td>
+                <td><strong>{{ complaint.subject }}</strong></td>
+                <td>{{ complaint.description[:80] }}{% if complaint.description|length > 80 %}...{% endif %}</td>
+                <td>{{ complaint.created_at.strftime('%B %d, %Y') }}</td>
+                <td>
+                    <span class="badge badge-{{ 'success' if complaint.status == 'resolved' else 'warning' }}">
+                        {{ complaint.status|title }}
+                    </span>
+                </td>
+                <td>
+                    {% if complaint.resolved_at %}
+                        {{ complaint.resolved_at.strftime('%B %d, %Y') }}
+                    {% else %}
+                        <span class="text-muted">-</span>
+                    {% endif %}
+                </td>
+                <td>
+                    {% if complaint.status == 'pending' %}
+                    <form method="POST" action="{{ url_for('resolve_complaint', complaint_id=complaint.id) }}" style="display: inline;">
+                        <button type="submit" class="btn btn-sm btn-success" onclick="return confirm('Mark this complaint as resolved?')">Mark as Resolved</button>
+                    </form>
+                    {% else %}
+                    <span class="text-muted">Resolved</span>
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% else %}
+<div class="empty-state">
+    <p>No complaints found{% if status_filter != 'all' %} with status "{{ status_filter }}"{% endif %}.</p>
+</div>
+{% endif %}
+{% endblock %}
+

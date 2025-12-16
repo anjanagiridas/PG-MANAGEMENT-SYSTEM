@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+
+{% block title %}All Tenants - PG Management{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1>All Tenants</h1>
+    <a href="{{ url_for('add_tenant') }}" class="btn btn-primary">Add New Tenant</a>
+</div>
+
+{% if tenants %}
+<div class="table-container">
+    <table class="data-table">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Name</th>
+                <th>Email</th>
+                <th>Phone</th>
+                <th>Room Number</th>
+                <th>Monthly Rent</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for tenant in tenants %}
+            <tr>
+                <td>{{ tenant.id }}</td>
+                <td>{{ tenant.name }}</td>
+                <td>{{ tenant.email }}</td>
+                <td>{{ tenant.phone }}</td>
+                <td>{{ tenant.room_number }}</td>
+                <td>₹{{ "%.2f"|format(tenant.monthly_rent) }}</td>
+                <td>
+                    <a href="{{ url_for('tenant_detail', tenant_id=tenant.id) }}" class="btn btn-sm btn-info">View</a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% else %}
+<div class="empty-state">
+    <p>No tenants found. <a href="{{ url_for('add_tenant') }}">Add your first tenant</a></p>
+</div>
+{% endif %}
+{% endblock %}
+

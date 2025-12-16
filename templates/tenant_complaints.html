@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+
+{% block title %}My Complaints - PG Management{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1>My Complaints</h1>
+    <a href="{{ url_for('raise_complaint') }}" class="btn btn-primary">Raise New Complaint</a>
+</div>
+
+{% if complaints %}
+<div class="table-container">
+    <table class="data-table">
+        <thead>
+            <tr>
+                <th>Subject</th>
+                <th>Description</th>
+                <th>Status</th>
+                <th>Created On</th>
+                <th>Resolved On</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for complaint in complaints %}
+            <tr>
+                <td><strong>{{ complaint.subject }}</strong></td>
+                <td>{{ complaint.description[:100] }}{% if complaint.description|length > 100 %}...{% endif %}</td>
+                <td>
+                    <span class="badge badge-{{ 'success' if complaint.status == 'resolved' else 'warning' }}">
+                        {{ complaint.status|title }}
+                    </span>
+                </td>
+                <td>{{ complaint.created_at.strftime('%B %d, %Y') }}</td>
+                <td>
+                    {% if complaint.resolved_at %}
+                        {{ complaint.resolved_at.strftime('%B %d, %Y') }}
+                    {% else %}
+                        <span class="text-muted">-</span>
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% else %}
+<div class="empty-state">
+    <p>No complaints found. <a href="{{ url_for('raise_complaint') }}">Raise your first complaint</a></p>
+</div>
+{% endif %}
+{% endblock %}
+

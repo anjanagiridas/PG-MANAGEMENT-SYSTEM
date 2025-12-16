@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+
+{% block title %}Payment History - PG Management{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1>Payment History</h1>
+    <a href="{{ url_for('add_payment') }}" class="btn btn-primary">Add New Payment</a>
+</div>
+
+{% if payments %}
+<div class="table-container">
+    <table class="data-table">
+        <thead>
+            <tr>
+                <th>Month</th>
+                <th>Amount</th>
+                <th>Payment Date</th>
+                <th>Transaction ID</th>
+                <th>Payment Proof</th>
+                <th>Status</th>
+                <th>Submitted On</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for payment in payments %}
+            <tr>
+                <td>{{ payment.month }}</td>
+                <td>₹{{ "%.2f"|format(payment.amount) }}</td>
+                <td>{{ payment.payment_date.strftime('%B %d, %Y') }}</td>
+                <td>{{ payment.transaction_id }}</td>
+                <td>
+                    {% if payment.payment_proof %}
+                    <a href="{{ url_for('static', filename=payment.payment_proof) }}" target="_blank" class="payment-proof-link">
+                        <img src="{{ url_for('static', filename=payment.payment_proof) }}" alt="Payment Proof" class="payment-proof-thumbnail">
+                    </a>
+                    {% else %}
+                    <span class="text-muted">No proof</span>
+                    {% endif %}
+                </td>
+                <td>
+                    <span class="badge badge-{{ 'success' if payment.status == 'approved' else 'warning' }}">
+                        {{ payment.status|title }}
+                    </span>
+                </td>
+                <td>{{ payment.created_at.strftime('%B %d, %Y') }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% else %}
+<div class="empty-state">
+    <p>No payments found. <a href="{{ url_for('add_payment') }}">Submit your first payment</a></p>
+</div>
+{% endif %}
+{% endblock %}
+

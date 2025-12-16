@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+
+{% block title %}Tenant Dashboard - PG Management{% endblock %}
+
+{% block content %}
+<div class="dashboard">
+    <h1>Welcome, {{ tenant.name }}!</h1>
+    
+    <div class="stats-grid">
+        <div class="stat-card">
+            <h3>Room Number</h3>
+            <p class="stat-number">{{ tenant.room_number }}</p>
+        </div>
+        <div class="stat-card">
+            <h3>Monthly Rent</h3>
+            <p class="stat-number">₹{{ "%.2f"|format(tenant.monthly_rent) }}</p>
+        </div>
+        <div class="stat-card warning">
+            <h3>Pending Payments</h3>
+            <p class="stat-number">{{ pending_count }}</p>
+        </div>
+        <div class="stat-card warning">
+            <h3>Pending Complaints</h3>
+            <p class="stat-number">{{ pending_complaints }}</p>
+        </div>
+    </div>
+
+    <div class="dashboard-actions">
+        <a href="{{ url_for('tenant_profile') }}" class="btn btn-primary">View Profile</a>
+        <a href="{{ url_for('add_payment') }}" class="btn btn-success">Add Payment</a>
+        <a href="{{ url_for('tenant_payment_history') }}" class="btn btn-info">Payment History</a>
+        <a href="{{ url_for('raise_complaint') }}" class="btn btn-warning">Raise Complaint</a>
+        <a href="{{ url_for('tenant_complaints') }}" class="btn btn-secondary">My Complaints</a>
+    </div>
+
+    {% if recent_payments %}
+    <div class="section-header">
+        <h2>Recent Payments</h2>
+    </div>
+    <div class="table-container">
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>Month</th>
+                    <th>Amount</th>
+                    <th>Payment Date</th>
+                    <th>Transaction ID</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for payment in recent_payments %}
+                <tr>
+                    <td>{{ payment.month }}</td>
+                    <td>₹{{ "%.2f"|format(payment.amount) }}</td>
+                    <td>{{ payment.payment_date.strftime('%B %d, %Y') }}</td>
+                    <td>{{ payment.transaction_id }}</td>
+                    <td>
+                        <span class="badge badge-{{ 'success' if payment.status == 'approved' else 'warning' }}">
+                            {{ payment.status|title }}
+                        </span>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
+

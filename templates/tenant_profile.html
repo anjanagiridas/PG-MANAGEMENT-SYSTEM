@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+
+{% block title %}My Profile - PG Management{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1>My Profile</h1>
+    <a href="{{ url_for('tenant_dashboard') }}" class="btn btn-secondary">Back to Dashboard</a>
+</div>
+
+<div class="profile-container">
+    <div class="profile-header">
+        {% if tenant.profile_photo %}
+        <div class="profile-photo-container">
+            <img src="{{ url_for('static', filename=tenant.profile_photo) }}" alt="Profile Photo" class="profile-photo">
+        </div>
+        {% else %}
+        <div class="profile-photo-container">
+            <div class="profile-photo-placeholder">
+                <span>No Photo</span>
+            </div>
+        </div>
+        {% endif %}
+        <div class="profile-info-header">
+            <h2>{{ tenant.name }}</h2>
+            <p class="text-muted">Room {{ tenant.room_number }}</p>
+        </div>
+    </div>
+
+    <div class="detail-card">
+        <h3>Personal Information</h3>
+        <div class="detail-grid">
+            <div class="detail-item">
+                <strong>Email:</strong> {{ tenant.email }}
+            </div>
+            <div class="detail-item">
+                <strong>Phone:</strong> {{ tenant.phone }}
+            </div>
+            <div class="detail-item">
+                <strong>Room Number:</strong> {{ tenant.room_number }}
+            </div>
+            <div class="detail-item">
+                <strong>Monthly Rent:</strong> ₹{{ "%.2f"|format(tenant.monthly_rent) }}
+            </div>
+            {% if tenant.deposit_amount %}
+            <div class="detail-item">
+                <strong>Security Deposit:</strong> ₹{{ "%.2f"|format(tenant.deposit_amount) }}
+            </div>
+            {% endif %}
+            {% if tenant.deposit_paid_date %}
+            <div class="detail-item">
+                <strong>Deposit Paid Date:</strong> {{ tenant.deposit_paid_date.strftime('%B %d, %Y') }}
+            </div>
+            {% endif %}
+            <div class="detail-item">
+                <strong>Member Since:</strong> {{ tenant.created_at.strftime('%B %d, %Y') }}
+            </div>
+        </div>
+    </div>
+
+    {% if tenant.id_proof_photo %}
+    <div class="detail-card">
+        <h3>ID Proof</h3>
+        <div class="id-proof-container">
+            <img src="{{ url_for('static', filename=tenant.id_proof_photo) }}" alt="ID Proof" class="id-proof-photo">
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
+

@@ -1,0 +1,74 @@
+{% extends "base.html" %}
+
+{% block title %}Payments - PG Management{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1>Payments</h1>
+    <div class="filter-buttons">
+        <a href="{{ url_for('view_payments', status='all') }}" class="btn btn-sm {{ 'btn-primary' if status_filter == 'all' else 'btn-secondary' }}">All</a>
+        <a href="{{ url_for('view_payments', status='pending') }}" class="btn btn-sm {{ 'btn-warning' if status_filter == 'pending' else 'btn-secondary' }}">Pending</a>
+        <a href="{{ url_for('view_payments', status='approved') }}" class="btn btn-sm {{ 'btn-success' if status_filter == 'approved' else 'btn-secondary' }}">Approved</a>
+    </div>
+</div>
+
+{% if payments %}
+<div class="table-container">
+    <table class="data-table">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Tenant</th>
+                <th>Month</th>
+                <th>Amount</th>
+                <th>Payment Date</th>
+                <th>Transaction ID</th>
+                <th>Payment Proof</th>
+                <th>Status</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for payment in payments %}
+            <tr>
+                <td>{{ payment.id }}</td>
+                <td>{{ payment.tenant.name }} (Room: {{ payment.tenant.room_number }})</td>
+                <td>{{ payment.month }}</td>
+                <td>₹{{ "%.2f"|format(payment.amount) }}</td>
+                <td>{{ payment.payment_date.strftime('%B %d, %Y') }}</td>
+                <td>{{ payment.transaction_id }}</td>
+                <td>
+                    {% if payment.payment_proof %}
+                    <a href="{{ url_for('static', filename=payment.payment_proof) }}" target="_blank" class="payment-proof-link">
+                        <img src="{{ url_for('static', filename=payment.payment_proof) }}" alt="Payment Proof" class="payment-proof-thumbnail">
+                    </a>
+                    {% else %}
+                    <span class="text-muted">No proof</span>
+                    {% endif %}
+                </td>
+                <td>
+                    <span class="badge badge-{{ 'success' if payment.status == 'approved' else 'warning' }}">
+                        {{ payment.status|title }}
+                    </span>
+                </td>
+                <td>
+                    {% if payment.status == 'pending' %}
+                    <form method="POST" action="{{ url_for('approve_payment', payment_id=payment.id) }}" style="display: inline;">
+                        <button type="submit" class="btn btn-sm btn-success" onclick="return confirm('Approve this payment?')">Approve</button>
+                    </form>
+                    {% else %}
+                    <span class="text-muted">Approved</span>
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% else %}
+<div class="empty-state">
+    <p>No payments found.</p>
+</div>
+{% endif %}
+{% endblock %}
+

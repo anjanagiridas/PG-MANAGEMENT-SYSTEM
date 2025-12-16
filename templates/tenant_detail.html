@@ -1,0 +1,118 @@
+{% extends "base.html" %}
+
+{% block title %}{{ tenant.name }} - PG Management{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1>Tenant Details</h1>
+    <a href="{{ url_for('view_tenants') }}" class="btn btn-secondary">Back to Tenants</a>
+</div>
+
+<div class="profile-header">
+    {% if tenant.profile_photo %}
+    <div class="profile-photo-container">
+        <img src="{{ url_for('static', filename=tenant.profile_photo) }}" alt="Profile Photo" class="profile-photo">
+    </div>
+    {% else %}
+    <div class="profile-photo-container">
+        <div class="profile-photo-placeholder">
+            <span>No Photo</span>
+        </div>
+    </div>
+    {% endif %}
+    <div class="profile-info-header">
+        <h2>{{ tenant.name }}</h2>
+        <p class="text-muted">Room {{ tenant.room_number }}</p>
+    </div>
+</div>
+
+<div class="detail-card">
+    <h3>Personal Information</h3>
+    <div class="detail-grid">
+        <div class="detail-item">
+            <strong>Email:</strong> {{ tenant.email }}
+        </div>
+        <div class="detail-item">
+            <strong>Phone:</strong> {{ tenant.phone }}
+        </div>
+        <div class="detail-item">
+            <strong>Room Number:</strong> {{ tenant.room_number }}
+        </div>
+        <div class="detail-item">
+            <strong>Monthly Rent:</strong> ₹{{ "%.2f"|format(tenant.monthly_rent) }}
+        </div>
+        {% if tenant.deposit_amount %}
+        <div class="detail-item">
+            <strong>Security Deposit:</strong> ₹{{ "%.2f"|format(tenant.deposit_amount) }}
+        </div>
+        {% endif %}
+        {% if tenant.deposit_paid_date %}
+        <div class="detail-item">
+            <strong>Deposit Paid Date:</strong> {{ tenant.deposit_paid_date.strftime('%B %d, %Y') }}
+        </div>
+        {% endif %}
+        <div class="detail-item">
+            <strong>Joined:</strong> {{ tenant.created_at.strftime('%B %d, %Y') }}
+        </div>
+    </div>
+</div>
+
+{% if tenant.id_proof_photo %}
+<div class="detail-card">
+    <h3>ID Proof</h3>
+    <div class="id-proof-container">
+        <img src="{{ url_for('static', filename=tenant.id_proof_photo) }}" alt="ID Proof" class="id-proof-photo">
+    </div>
+</div>
+{% endif %}
+
+<div class="section-header">
+    <h2>Payment History</h2>
+</div>
+
+{% if payments %}
+<div class="table-container">
+    <table class="data-table">
+        <thead>
+            <tr>
+                <th>Month</th>
+                <th>Amount</th>
+                <th>Payment Date</th>
+                <th>Transaction ID</th>
+                <th>Payment Proof</th>
+                <th>Status</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for payment in payments %}
+            <tr>
+                <td>{{ payment.month }}</td>
+                <td>₹{{ "%.2f"|format(payment.amount) }}</td>
+                <td>{{ payment.payment_date.strftime('%B %d, %Y') }}</td>
+                <td>{{ payment.transaction_id }}</td>
+                <td>
+                    {% if payment.payment_proof %}
+                    <a href="{{ url_for('static', filename=payment.payment_proof) }}" target="_blank" class="payment-proof-link">
+                        <img src="{{ url_for('static', filename=payment.payment_proof) }}" alt="Payment Proof" class="payment-proof-thumbnail">
+                    </a>
+                    {% else %}
+                    <span class="text-muted">No proof</span>
+                    {% endif %}
+                </td>
+                <td>
+                    <span class="badge badge-{{ 'success' if payment.status == 'approved' else 'warning' }}">
+                        {{ payment.status|title }}
+                    </span>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% else %}
+<div class="empty-state">
+    <p>No payments found for this tenant.</p>
+</div>
+{% endif %}
+{% endblock %}
+

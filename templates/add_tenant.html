@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+
+{% block title %}Add Tenant - PG Management{% endblock %}
+
+{% block content %}
+<div class="form-container">
+    <h1>Add New Tenant</h1>
+    <form method="POST" action="{{ url_for('add_tenant') }}" id="addTenantForm" class="form-card" enctype="multipart/form-data">
+        <div class="form-group">
+            <label for="name">Full Name *</label>
+            <input type="text" id="name" name="name" required>
+        </div>
+        <div class="form-group">
+            <label for="email">Email *</label>
+            <input type="email" id="email" name="email" required>
+        </div>
+        <div class="form-group">
+            <label for="phone">Phone Number *</label>
+            <input type="tel" id="phone" name="phone" required>
+        </div>
+        <div class="form-group">
+            <label for="room_number">Room Number *</label>
+            <input type="text" id="room_number" name="room_number" required>
+        </div>
+        <div class="form-group">
+            <label for="monthly_rent">Monthly Rent (₹) *</label>
+            <input type="number" id="monthly_rent" name="monthly_rent" step="0.01" min="0" required>
+        </div>
+        <div class="form-group">
+            <label for="deposit_amount">Security Deposit (₹)</label>
+            <input type="number" id="deposit_amount" name="deposit_amount" step="0.01" min="0">
+            <small>Optional: Enter the security deposit amount</small>
+        </div>
+        <div class="form-group">
+            <label for="deposit_paid_date">Deposit Paid Date</label>
+            <input type="date" id="deposit_paid_date" name="deposit_paid_date">
+            <small>Optional: Date when deposit was paid</small>
+        </div>
+        <div class="form-group">
+            <label for="profile_photo">Profile Photo</label>
+            <input type="file" id="profile_photo" name="profile_photo" accept="image/jpeg,image/jpg,image/png">
+            <small>Optional: Upload tenant's profile photo (JPG, JPEG, PNG - Max 2MB)</small>
+        </div>
+        <div class="form-group">
+            <label for="id_proof_photo">ID Proof Photo</label>
+            <input type="file" id="id_proof_photo" name="id_proof_photo" accept="image/jpeg,image/jpg,image/png">
+            <small>Optional: Upload tenant's ID proof (JPG, JPEG, PNG - Max 2MB)</small>
+        </div>
+        <div class="form-group">
+            <label for="password">Password *</label>
+            <input type="password" id="password" name="password" required>
+            <small>This will be the tenant's login password</small>
+        </div>
+        <div class="form-actions">
+            <button type="submit" class="btn btn-primary">Add Tenant</button>
+            <a href="{{ url_for('admin_dashboard') }}" class="btn btn-secondary">Cancel</a>
+        </div>
+    </form>
+</div>
+{% endblock %}
+

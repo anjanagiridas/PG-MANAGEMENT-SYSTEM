@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+
+{% block title %}Admin Dashboard - PG Management{% endblock %}
+
+{% block content %}
+<div class="dashboard">
+    <h1>Admin Dashboard</h1>
+    
+    <div class="stats-grid">
+        <div class="stat-card">
+            <h3>Total Tenants</h3>
+            <p class="stat-number">{{ total_tenants }}</p>
+        </div>
+        <div class="stat-card">
+            <h3>Total Payments</h3>
+            <p class="stat-number">{{ total_payments }}</p>
+        </div>
+        <div class="stat-card warning">
+            <h3>Pending Payments</h3>
+            <p class="stat-number">{{ pending_payments }}</p>
+        </div>
+        <div class="stat-card success">
+            <h3>Approved Payments</h3>
+            <p class="stat-number">{{ approved_payments }}</p>
+        </div>
+        <div class="stat-card">
+            <h3>Total Complaints</h3>
+            <p class="stat-number">{{ total_complaints }}</p>
+        </div>
+        <div class="stat-card warning">
+            <h3>Pending Complaints</h3>
+            <p class="stat-number">{{ pending_complaints }}</p>
+        </div>
+        <div class="stat-card success">
+            <h3>Resolved Complaints</h3>
+            <p class="stat-number">{{ resolved_complaints }}</p>
+        </div>
+    </div>
+
+    <div class="dashboard-actions">
+        <a href="{{ url_for('add_tenant') }}" class="btn btn-primary">Add New Tenant</a>
+        <a href="{{ url_for('view_tenants') }}" class="btn btn-secondary">View All Tenants</a>
+        <a href="{{ url_for('view_payments', status='pending') }}" class="btn btn-warning">Pending Payments</a>
+        <a href="{{ url_for('view_payments') }}" class="btn btn-info">All Payments</a>
+        <a href="{{ url_for('admin_complaints', status='pending') }}" class="btn btn-warning">Pending Complaints</a>
+        <a href="{{ url_for('admin_complaints') }}" class="btn btn-secondary">All Complaints</a>
+    </div>
+</div>
+{% endblock %}
+
